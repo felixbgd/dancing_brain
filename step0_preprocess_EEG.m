@@ -49,11 +49,11 @@ for p = 1:80
     statusevent = data.statusevent;
     
     % Remove unused channels
-    data = Giac_removeChannels(data, {'EXG7','EXG8','GSR1','GSR2','Erg1','Erg2','Resp','Plet','Temp'});
+    data = EEG_removeChannels(data, {'EXG7','EXG8','GSR1','GSR2','Erg1','Erg2','Resp','Plet','Temp'});
     
     %%-------    (1) BP FILTER [1-8Hz]       -------%%
     maxfreq = 8;
-    data_bp = Giac_bandPass(data,1,maxfreq,3,'yesNotch');
+    data_bp = EEG_bandPass(data,1,maxfreq,3,'yesNotch');
 
     %%-------          (2) DOWNSAMPLE         -------%%
     cfg = [];
@@ -65,7 +65,7 @@ for p = 1:80
     cfg = [];
     cfg.channel = {'EXG1','EXG2','EXG3','EXG4','EXG5','EXG6'};
     data_bp_rs_aux = ft_selectdata(cfg,data_bp_rs); % saves the aux for later
-    data_bp_rs_eeg = Giac_removeChannels(data_bp_rs,{'EXG1','EXG2','EXG3','EXG4','EXG5','EXG6'});
+    data_bp_rs_eeg = EEG_removeChannels(data_bp_rs,{'EXG1','EXG2','EXG3','EXG4','EXG5','EXG6'});
     
     %%-------      (3) REMOVE BAD CHANNELS      ------%%
     % Flat -- high-freq noise -- low-correlation with neighbours (eeglab toolbox)
@@ -76,15 +76,15 @@ for p = 1:80
     bad_channels_flatNoisy = RFT_detect_FlatCorrNoise_electrodes(data_bp_rs_eeg,'eeglab_template_biosemi64.mat',steps_to_do,criteria);
     bad_channels_flat = bad_channels_flatNoisy.flat;     % you could also concatenate bad channels of both flat and noise check
     bad_channels_corrNoise = bad_channels_flatNoisy.corrNoise;
-    data_bp_rs_eeg = Giac_removeChannels(data_bp_rs_eeg , bad_channels_flat);     % remove them
-    data_bp_rs_eeg = Giac_removeChannels(data_bp_rs_eeg , bad_channels_corrNoise);     % remove them
+    data_bp_rs_eeg = EEG_removeChannels(data_bp_rs_eeg , bad_channels_flat);     % remove them
+    data_bp_rs_eeg = EEG_removeChannels(data_bp_rs_eeg , bad_channels_corrNoise);     % remove them
 
-    % Noisy electrodes (Giac Toolbox)
-    [ bad_channels_giac ] = Giac_EEG_CatchNoisyElectrodes( data_bp_rs_eeg, 'all', 3, 'recursive' );
-    data_bp_rs_eeg = Giac_removeChannels(data_bp_rs_eeg,bad_channels_giac);
+    % Noisy electrodes (our function)
+    [ bad_channels_catchNoise ] = EEG_CatchNoisyElectrodes( data_bp_rs_eeg, 'all', 3, 'recursive' );
+    data_bp_rs_eeg = EEG_removeChannels(data_bp_rs_eeg,bad_channels_catchNoise);
     
     % Concatenate bad channels from every specific issue
-    bad_channels = [bad_channels_flat bad_channels_corrNoise bad_channels_giac];
+    bad_channels = [bad_channels_flat bad_channels_corrNoise bad_channels_catchNoise];
     bad_channels_num(iParticipant) = length(bad_channels);
     bad_channels_store{p} = bad_channels;
 

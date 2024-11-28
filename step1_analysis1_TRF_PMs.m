@@ -86,7 +86,7 @@ for p = [1:40 43:44 47:50 55:56 59:80]          % only participants with OK moca
     data_bp_rs_asr_ica_interp_all = ft_preprocessing([],data_bp_rs_asr_ica_interp_all);
 
     % Retrieve EEG scalp data
-    data_bp_rs_asr_ica_interp           = Giac_removeChannels(data_bp_rs_asr_ica_interp_all,{'EXG1','EXG2','EXG3','EXG4','EXG5','EXG6'});
+    data_bp_rs_asr_ica_interp           = EEG_removeChannels(data_bp_rs_asr_ica_interp_all,{'EXG1','EXG2','EXG3','EXG4','EXG5','EXG6'});
     [labels_sorted , idx_labels_sorted] = sort(data_bp_rs_asr_ica_interp.label);
 
     %%% Define pred/stim and EEG for each trial
